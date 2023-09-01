@@ -79,6 +79,7 @@ namespace VeraCrypt
 			TC_CONFIG_SET (CloseBackgroundTaskOnNoVolumes);
 			TC_CONFIG_SET (CloseExplorerWindowsOnDismount);
 			TC_CONFIG_SET (CloseSecurityTokenSessionsAfterMount);
+			TC_CONFIG_SET (EMVSupportEnabled);
 			TC_CONFIG_SET (DisableKernelEncryptionModeWarning);
 			TC_CONFIG_SET (DismountOnInactivity);
 			TC_CONFIG_SET (DismountOnLogOff);
@@ -109,8 +110,6 @@ namespace VeraCrypt
 			TC_CONFIG_SET (WipeCacheOnAutoDismount);
 			TC_CONFIG_SET (WipeCacheOnClose);
 
-			SetValue (configMap[L"DefaultTrueCryptMode"], DefaultMountOptions.TrueCryptMode);
-
 			wstring defaultPrf;
 			SetValue (configMap[L"DefaultPRF"], defaultPrf);
 
@@ -118,7 +117,7 @@ namespace VeraCrypt
 			try
 			{
 				if (defaultPrf != L"autodetection")
-					savedKdf = Pkcs5Kdf::GetAlgorithm (defaultPrf, DefaultMountOptions.TrueCryptMode);
+					savedKdf = Pkcs5Kdf::GetAlgorithm (defaultPrf);
 			}
 			catch (ParameterIncorrect&)
 			{
@@ -197,6 +196,7 @@ namespace VeraCrypt
 		TC_CONFIG_ADD (CloseBackgroundTaskOnNoVolumes);
 		TC_CONFIG_ADD (CloseExplorerWindowsOnDismount);
 		TC_CONFIG_ADD (CloseSecurityTokenSessionsAfterMount);
+        TC_CONFIG_ADD (EMVSupportEnabled);
 		TC_CONFIG_ADD (DisableKernelEncryptionModeWarning);
 		TC_CONFIG_ADD (DismountOnInactivity);
 		TC_CONFIG_ADD (DismountOnLogOff);
@@ -222,8 +222,6 @@ namespace VeraCrypt
 		TC_CONFIG_ADD (UseKeyfiles);
 		TC_CONFIG_ADD (WipeCacheOnAutoDismount);
 		TC_CONFIG_ADD (WipeCacheOnClose);
-
-		formatter.AddEntry (L"DefaultTrueCryptMode", DefaultMountOptions.TrueCryptMode);
 
 		wstring defaultPrf = L"autodetection";
 		if (DefaultMountOptions.Kdf)

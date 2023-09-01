@@ -39,7 +39,6 @@ void VerifyPasswordAndUpdate (HWND hwndDlg, HWND hButton, HWND hPassword,
 	char szTmp1Utf8[MAX_PASSWORD + 1];
 	char szTmp2Utf8[MAX_PASSWORD + 1];
 	int k = GetWindowTextLength (hPassword);
-	int j = GetWindowTextLength (hVerify);
 	BOOL bEnable = FALSE;
 	int utf8Len1, utf8Len2;
 
@@ -52,12 +51,7 @@ void VerifyPasswordAndUpdate (HWND hwndDlg, HWND hButton, HWND hPassword,
 	utf8Len2 = WideCharToMultiByte (CP_UTF8, 0, szTmp2, -1, szTmp2Utf8, MAX_PASSWORD + 1, NULL, NULL);
 
 	if (wcscmp (szTmp1, szTmp2) != 0)
-	{
 		bEnable = FALSE;
-		if(k > 0 && j == k)
-			Warning ("WARNING_PASSWORD_NOT_IDENTICAL", hwndDlg);
-
-	}
 	else if (utf8Len1 <= 0)
 		bEnable = FALSE;
 	else
@@ -151,6 +145,11 @@ BOOL CheckPasswordLength (HWND hwndDlg, unsigned __int32 passwordLength, int pim
 			Error (bootPimCondition? "BOOT_PIM_REQUIRE_LONG_PASSWORD": "PIM_REQUIRE_LONG_PASSWORD", hwndDlg);
 			return FALSE;
 		}
+
+#ifndef _DEBUG
+		if (!bSkipPasswordWarning && (MessageBoxW (hwndDlg, GetString ("PASSWORD_LENGTH_WARNING"), lpszTitle, MB_YESNO|MB_ICONWARNING|MB_DEFBUTTON2) != IDYES))
+			return FALSE;
+#endif
 	}
 #ifndef _DEBUG
 	else if (bCustomPimSmall)
@@ -169,7 +168,7 @@ BOOL CheckPasswordLength (HWND hwndDlg, unsigned __int32 passwordLength, int pim
 	return TRUE;
 }
 
-int ChangePwd (const wchar_t *lpszVolume, Password *oldPassword, int old_pkcs5, int old_pim, BOOL truecryptMode, Password *newPassword, int pkcs5, int pim, int wipePassCount, HWND hwndDlg)
+int ChangePwd (const wchar_t *lpszVolume, Password *oldPassword, int old_pkcs5, int old_pim, Password *newPassword, int pkcs5, int pim, int wipePassCount, HWND hwndDlg)
 {
 	int nDosLinkCreated = 1, nStatus = ERR_OS_ERROR;
 	wchar_t szDiskFile[TC_MAX_PATH], szCFDevice[TC_MAX_PATH];
@@ -192,7 +191,7 @@ int ChangePwd (const wchar_t *lpszVolume, Password *oldPassword, int old_pkcs5, 
 
 	if (oldPassword->Length == 0 || newPassword->Length == 0) return -1;
 
-	if ((wipePassCount <= 0) || (truecryptMode && (old_pkcs5 == SHA256)))
+	if (wipePassCount <= 0)
 	{
       nStatus = ERR_PARAMETER_INCORRECT;
       handleError (hwndDlg, nStatus, SRC_POS);
@@ -368,7 +367,7 @@ int ChangePwd (const wchar_t *lpszVolume, Password *oldPassword, int old_pkcs5, 
 
 		/* Try to decrypt the header */
 
-		nStatus = ReadVolumeHeader (FALSE, buffer, oldPassword, old_pkcs5, old_pim, truecryptMode, &cryptoInfo, NULL);
+		nStatus = ReadVolumeHeader (FALSE, buffer, oldPassword, old_pkcs5, old_pim, &cryptoInfo, NULL);
 		if (nStatus == ERR_CIPHER_INIT_WEAK_KEY)
 			nStatus = 0;	// We can ignore this error here
 
@@ -441,7 +440,7 @@ int ChangePwd (const wchar_t *lpszVolume, Password *oldPassword, int old_pkcs5, 
 				(volumeType == TC_VOLUME_TYPE_HIDDEN) ? cryptoInfo->hiddenVolumeSize : 0,
 				cryptoInfo->EncryptedAreaStart.Value,
 				cryptoInfo->EncryptedAreaLength.Value,
-				truecryptMode? 0 : cryptoInfo->RequiredProgramVersion,
+				cryptoInfo->RequiredProgramVersion,
 				cryptoInfo->HeaderFlags,
 				cryptoInfo->SectorSize,
 				wipePass < wipePassCount - 1);
@@ -495,7 +494,7 @@ int ChangePwd (const wchar_t *lpszVolume, Password *oldPassword, int old_pkcs5, 
 					cryptoInfo->VolumeSize.Value,
 					cryptoInfo->EncryptedAreaStart.Value,
 					cryptoInfo->EncryptedAreaLength.Value,
-					truecryptMode? 0 : cryptoInfo->RequiredProgramVersion,
+					cryptoInfo->RequiredProgramVersion,
 					cryptoInfo->HeaderFlags,
 					cryptoInfo->SectorSize,
 					wipePass < wipePassCount - 1);
@@ -564,3 +563,4 @@ error:
 
 	return nStatus;
 }
+

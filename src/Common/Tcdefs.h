@@ -59,7 +59,7 @@ extern unsigned short _rotl16(unsigned short value, unsigned char shift);
 #define TC_APP_NAME						"VeraCrypt"
 
 // Version displayed to user 
-#define VERSION_STRING					"1.26"
+#define VERSION_STRING					"1.26.5"
 
 #ifdef VC_EFI_CUSTOM_MODE
 #define VERSION_STRING_SUFFIX			"-CustomEFI"
@@ -73,9 +73,9 @@ extern unsigned short _rotl16(unsigned short value, unsigned char shift);
 #define VERSION_NUM						0x0126
 
 // Release date
-#define TC_STR_RELEASE_DATE			L"March 21, 2022"
-#define TC_RELEASE_DATE_YEAR			2022
-#define TC_RELEASE_DATE_MONTH			 03
+#define TC_STR_RELEASE_DATE			L"August 15, 2023"
+#define TC_RELEASE_DATE_YEAR			2023
+#define TC_RELEASE_DATE_MONTH			 07
 
 #define BYTES_PER_KB                    1024LL
 #define BYTES_PER_MB                    1048576LL
@@ -344,7 +344,7 @@ extern BOOLEAN VC_KeAreAllApcsDisabled (VOID);
 
 #ifndef TC_LOCAL_WIN32_WINNT_OVERRIDE
 #	undef _WIN32_WINNT
-#	define	_WIN32_WINNT 0x0501	/* Does not apply to the driver */
+#	define	_WIN32_WINNT 0x0601	/* Does not apply to the driver */
 #endif
 
 #include <windows.h>		/* Windows header */
@@ -487,9 +487,8 @@ enum
 	ERR_SYS_HIDVOL_HEAD_REENC_MODE_WRONG	= 31,
 	ERR_NONSYS_INPLACE_ENC_INCOMPLETE		= 32,
 	ERR_USER_ABORT							= 33,
-	ERR_UNSUPPORTED_TRUECRYPT_FORMAT		= 34,
-	ERR_RAND_INIT_FAILED					= 35,
-	ERR_CAPI_INIT_FAILED					= 36
+	ERR_RAND_INIT_FAILED					= 34,
+	ERR_CAPI_INIT_FAILED					= 35
 };
 
 #endif 	// #ifndef TCDEFS_H
